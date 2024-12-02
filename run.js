@@ -23,14 +23,14 @@ const randomDelay = () =>
 const getMemoryUsage = () => {
     const used = process.memoryUsage();
     return {
-        rss: ${(used.rss / 1024 / 1024).toFixed(2)} MB,
-        heapUsed: ${(used.heapUsed / 1024 / 1024).toFixed(2)} MB,
-        heapTotal: ${(used.heapTotal / 1024 / 1024).toFixed(2)} MB,
+        rss: `${(used.rss / 1024 / 1024).toFixed(2)} MB`,
+        heapUsed: `${(used.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+        heapTotal: `${(used.heapTotal / 1024 / 1024).toFixed(2)} MB`,
     };
 };
 
 const constructUrl = (city, bodyType, page) => {
-    return https://www.olx.com.pk/${city}/vehicles_c5?page=${page}&sorting=desc-creation&filter=body_type_eq_${bodyType};
+    return `https://www.olx.com.pk/${city}/vehicles_c5?page=${page}&sorting=desc-creation&filter=body_type_eq_${bodyType}`;
 };
 
 const loadState = () => {
@@ -40,7 +40,7 @@ const loadState = () => {
             return JSON.parse(data);
         }
     } catch (error) {
-        console.error(chalk.red(Failed to load state: ${error.message}));
+        console.error(chalk.red(`Failed to load state: ${error.message}`));
     }
     return null;
 };
@@ -48,9 +48,9 @@ const loadState = () => {
 const saveState = (state) => {
     try {
         fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(state, null, 2));
-        console.log(chalk.blue(State saved successfully!));
+        console.log(chalk.blue(`State saved successfully!`));
     } catch (error) {
-        console.error(chalk.red(Failed to save state: ${error.message}));
+        console.error(chalk.red(`Failed to save state: ${error.message}`));
     }
 };
 
@@ -71,19 +71,19 @@ const scrapeParentPages = async () => {
         cityIndex = lastState.cityIndex;
         currentBodyType = lastState.bodyType;
         currentPage = lastState.page;
-        console.log(chalk.yellow(Resuming from city: ${CITIES[cityIndex]}, body type: ${currentBodyType}, page: ${currentPage}));
+        console.log(chalk.yellow(`Resuming from city: ${CITIES[cityIndex]}, body type: ${currentBodyType}, page: ${currentPage}`));
     }
 
     for (; cityIndex < CITIES.length; cityIndex++) {
         const city = CITIES[cityIndex];
-        console.log(chalk.green(Starting to scrape city: ${city}));
+        console.log(chalk.green(`Starting to scrape city: ${city}`));
 
         for (; currentBodyType <= 11; currentBodyType++) {
-            console.log(chalk.cyan(Scraping body type: ${currentBodyType} for city: ${city}));
+            console.log(chalk.cyan(`Scraping body type: ${currentBodyType} for city: ${city}`));
 
             for (; currentPage <= 3; currentPage++) {
                 const url = constructUrl(city, currentBodyType, currentPage);
-                console.log(chalk.yellow(Crawling URL: ${url}));
+                console.log(chalk.yellow(`Crawling URL: ${url}`));
 
                 const child = fork(path.join(__dirname, 'child.js'), [url]);
 
@@ -93,19 +93,19 @@ const scrapeParentPages = async () => {
                             if (message && message.success) {
                                 resolve();
                             } else {
-                                reject(new Error(Child process failed for ${url}));
+                                reject(new Error(`Child process failed for ${url}`));
                             }
                         });
 
                         child.on('exit', (code) => {
                             if (code !== 0) {
-                                console.error(chalk.red(Child process failed with code ${code}.));
-                                reject(new Error(Child process failed with code ${code}));
+                                console.error(chalk.red(`Child process failed with code ${code}.`));
+                                reject(new Error(`Child process failed with code ${code}`));
                             }
                         });
                     });
                 } catch (error) {
-                    console.error(chalk.red(Error: ${error.message}));
+                    console.error(chalk.red(`Error: ${error.message}`));
                     saveState({ cityIndex, bodyType: currentBodyType, page: currentPage });
                     // Continue instead of stopping the process
                     continue;
@@ -115,7 +115,7 @@ const scrapeParentPages = async () => {
                 saveState({ cityIndex, bodyType: currentBodyType, page: currentPage });
 
                 const memoryUsage = getMemoryUsage();
-                console.log(chalk.blue(Memory Usage - RSS: ${memoryUsage.rss}, Heap Used: ${memoryUsage.heapUsed}, Heap Total: ${memoryUsage.heapTotal}));
+                console.log(chalk.blue(`Memory Usage - RSS: ${memoryUsage.rss}, Heap Used: ${memoryUsage.heapUsed}, Heap Total: ${memoryUsage.heapTotal}`));
                 await randomDelay();
             }
             currentPage = 1;
@@ -129,6 +129,6 @@ const scrapeParentPages = async () => {
 };
 
 scrapeParentPages().catch((err) => {
-    console.error(chalk.red(Scraping process terminated: ${err.message}));
+    console.error(chalk.red(`Scraping process terminated: ${err.message}`));
     saveState({ cityIndex, bodyType: currentBodyType, page: currentPage });
 });
