@@ -17,12 +17,6 @@ const MIN_DELAY_MS = 5000;
 const MAX_DELAY_MS = 8000;
 const STATE_FILE_PATH = path.join(__dirname, 'state.json');
 
-// Generate a unique file name based on the current date and time
-const getTimestampedFileName = () => {
-    const now = new Date();
-    return `scraped_data_${now.toISOString().replace(/[:.]/g, '-')}.csv`;
-};
-
 const randomDelay = () =>
     new Promise((resolve) => setTimeout(resolve, MIN_DELAY_MS + Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS)));
 
@@ -34,7 +28,6 @@ const getMemoryUsage = () => {
         heapTotal: `${(used.heapTotal / 1024 / 1024).toFixed(2)} MB`,
     };
 };
-
 
 const constructUrl = (city, bodyType, page) => {
     return `https://www.olx.com.pk/${city}/vehicles_c5?page=${page}&sorting=desc-creation&filter=body_type_eq_${bodyType}`;
@@ -55,7 +48,7 @@ const loadState = () => {
 const saveState = (state) => {
     try {
         fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(state, null, 2));
-        console.log(chalk.blue('State saved successfully!'));
+        console.log(chalk.blue(`State saved successfully!`));
     } catch (error) {
         console.error(chalk.red(`Failed to save state: ${error.message}`));
     }
@@ -73,7 +66,6 @@ let currentPage = 1;
 
 const scrapeParentPages = async () => {
     const lastState = loadState();
-    let fileName = getTimestampedFileName();  // Generate a new file name for this session
 
     if (lastState) {
         cityIndex = lastState.cityIndex;
@@ -93,8 +85,7 @@ const scrapeParentPages = async () => {
                 const url = constructUrl(city, currentBodyType, currentPage);
                 console.log(chalk.yellow(`Crawling URL: ${url}`));
 
-                // Pass the dynamically created file name to the child process
-                const child = fork(path.join(__dirname, 'child.js'), [url, fileName]);
+                const child = fork(path.join(__dirname, 'child.js'), [url]);
 
                 try {
                     await new Promise((resolve, reject) => {
