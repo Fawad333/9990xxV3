@@ -47,9 +47,9 @@ const saveToCSV = (data, filePath) => {
             fs.appendFileSync(filePath, csvData + '\n');
         }
 
-        console.log(chalk.white(Data saved to ${filePath}));
+        console.log(chalk.white(`Data saved to ${filePath}`));
     } catch (error) {
-        console.error(chalk.red(Error saving data: ${error.message}));
+        console.error(chalk.red(`Error saving data: ${error.message}`));
     }
 };
 
@@ -57,8 +57,8 @@ const uploadToGitHub = async (localFilePath, githubConfig) => {
     try {
         const { token, repo, branch, filePath } = githubConfig;
 
-        const url = https://api.github.com/repos/${repo}/contents/${filePath};
-        const headers = { Authorization: token ${token} };
+        const url = `https://api.github.com/repos/${repo}/contents/${filePath}`;
+        const headers = { Authorization: `token ${token}` };
 
         let existingContent = '';
         let sha;
@@ -70,7 +70,7 @@ const uploadToGitHub = async (localFilePath, githubConfig) => {
             sha = response.data.sha;
         } catch (err) {
             if (err.response.status !== 404) {
-                throw new Error(Failed to retrieve existing file: ${err.message});
+                throw new Error(`Failed to retrieve existing file: ${err.message}`);
             }
         }
 
@@ -89,9 +89,9 @@ const uploadToGitHub = async (localFilePath, githubConfig) => {
 
         // Push the updated file to GitHub
         const response = await axios.put(url, payload, { headers });
-        console.log(chalk.green(CSV file updated on GitHub: ${response.data.content.html_url}));
+        console.log(chalk.green(`CSV file updated on GitHub: ${response.data.content.html_url}`));
     } catch (error) {
-        console.error(chalk.red(Failed to update CSV on GitHub: ${error.message}));
+        console.error(chalk.red(`Failed to update CSV on GitHub: ${error.message}`));
     }
 };
 
@@ -130,13 +130,13 @@ const scrapeChildPages = async (parentUrl) => {
         $("#body-wrapper li.undefined article > div:last-child > a").each((_, el) => {
             const relativeLink = $(el).attr("href");
             if (relativeLink && !visitedUrls.has(relativeLink)) {
-                const fullLink = relativeLink.startsWith('http') ? relativeLink : ${BASE_URL}${relativeLink};
+                const fullLink = relativeLink.startsWith('http') ? relativeLink : `${BASE_URL}${relativeLink}`;
                 visitedUrls.add(fullLink);
                 listings.push(fullLink);
             }
         });
 
-        console.log(chalk.yellow(Found ${listings.length} child pages on ${parentUrl}));
+        console.log(chalk.yellow(`Found ${listings.length} child pages on ${parentUrl}`));
 
         const scrapedData = (await Promise.all(listings.map(scrapeListing))).filter(Boolean);
         saveToCSV(scrapedData, files.cars);
@@ -149,12 +149,12 @@ const scrapeChildPages = async (parentUrl) => {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
-        console.log(chalk.green(Response Time: ${responseTime}ms));
+        console.log(chalk.green(`Response Time: ${responseTime}ms`));
 
         // Send a success message back to the parent process
         process.send({ success: true });
     } catch (error) {
-        console.error(chalk.red(Error scraping parent page ${parentUrl}: ${error.message}));
+        console.error(chalk.red(`Error scraping parent page ${parentUrl}: ${error.message}`));
         process.send({ success: false, message: error.message });
     }
 };
