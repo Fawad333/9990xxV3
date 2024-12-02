@@ -29,11 +29,12 @@ const randomDelay = () =>
 const getMemoryUsage = () => {
     const used = process.memoryUsage();
     return {
-        rss: ${(used.rss / 1024 / 1024).toFixed(2)} MB,
-        heapUsed: ${(used.heapUsed / 1024 / 1024).toFixed(2)} MB,
-        heapTotal: ${(used.heapTotal / 1024 / 1024).toFixed(2)} MB,
+        rss: `${(used.rss / 1024 / 1024).toFixed(2)} MB`,
+        heapUsed: `${(used.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+        heapTotal: `${(used.heapTotal / 1024 / 1024).toFixed(2)} MB`,
     };
 };
+
 
 const constructUrl = (city, bodyType, page) => {
     return `https://www.olx.com.pk/${city}/vehicles_c5?page=${page}&sorting=desc-creation&filter=body_type_eq_${bodyType}`;
