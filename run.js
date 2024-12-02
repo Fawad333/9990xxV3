@@ -8,9 +8,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const CITIES = [
-    'punjab_g2003006',
-    'islamabad-capital-territory_g2003003',
-    'khyber-pakhtunkhwa_g2003005',
+    'balochistan_g2003001',
+    'azad-kashmir_g2003000',
+    'sindh_g2003007'
 ];
 
 const MIN_DELAY_MS = 5000;
